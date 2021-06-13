@@ -4,6 +4,7 @@ services:
   app:
     build: .
     container_name: app
+    entrypoint: php-fpm
     environment:
       - AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}
       - AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
@@ -12,7 +13,9 @@ services:
       - AWS_URL=${AWS_URL}
       - TESTING_PROD=${TESTING_PROD}
     volumes:
-      - ./www:/var/www
+      - ./frontend:/var/www/frontend
+      - ./backend/www:/var/www/backend
+      - ./.docker/php/custom.ini:/usr/local/etc/php/conf.d/custom.ini
     networks:
       - app-network
     depends_on:
@@ -27,7 +30,8 @@ services:
     ports:
       - "8000:80"
     volumes:
-      - ./www:/var/www
+      - ./frontend:/var/www/frontend
+      - ./backend/www:/var/www/backend
     networks:
       - app-network
     depends_on:
@@ -54,6 +58,13 @@ services:
     image: redis:alpine
     expose:
       - 6379
+    networks:
+      - app-network
+
+  selenium:
+    image: selenium/standalone-chrome
+    expose:
+      - 4444
     networks:
       - app-network
 

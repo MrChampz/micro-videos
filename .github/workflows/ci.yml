@@ -27,19 +27,37 @@ jobs:
         run: docker exec -u root -t app chown -R www-data:www-data /var/www
 
       - name: Copy .env
-        run: docker exec -t app cp /var/www/.env.example /var/www/.env
+        run: docker exec -t app cp /var/www/backend/.env.example /var/www/backend/.env
 
       - name: Copy .env.testing
-        run: docker exec -t app cp /var/www/.env.testing.example /var/www/.env.testing
+        run: docker exec -t app cp /var/www/backend/.env.testing.example /var/www/backend/.env.testing
+
+      - name: Copy .env.dusk.testing
+        run: docker exec -t app cp /var/www/backend/.env.dusk.testing.example /var/www/backend/.env.dusk.testing
 
       - name: Install composer dependencies
-        run: docker exec -t app composer install
+        run: docker exec -t app composer install -d /var/www/backend
 
       - name: Run Laravel key:generate
-        run: docker exec -t app php /var/www/artisan key:generate
+        run: docker exec -t app php /var/www/backend/artisan key:generate
 
       - name: Run migrations
-        run: docker exec -t app php /var/www/artisan migrate
+        run: docker exec -t app php /var/www/backend/artisan migrate
 
       - name: Run PHPUnit
-        run: docker exec -t app php /var/www/vendor/bin/phpunit -c /var/www/phpunit.xml
+        run: docker exec -t app php /var/www/backend/vendor/bin/phpunit -c /var/www/backend/phpunit.xml
+
+      - name: Copy frontend .env
+        run: docker exec -t app cp /var/www/frontend/.env.example /var/www/frontend/.env
+
+      - name: Install frontend dependencies
+        run: docker exec -t app npm install --prefix /var/www/frontend
+
+      - name: Set run permission for scripts/build.sh
+        run: docker exec -t app chmod +x /var/www/frontend/scripts/build.sh
+
+      - name: Build frontend
+        run: docker exec -t app npm run build-laravel --prefix /var/www/frontend
+      
+      - name: Test Laravel and React integration
+        run: docker exec -w /var/www/backend -t app php artisan dusk --env=testing
