@@ -54,7 +54,7 @@ jobs:
         run: docker exec -t app npm install --prefix /var/www/frontend
 
       - name: Set run permission for scripts/build.sh
-        run: docker exec -t app cp chmod +x /var/www/frontend/scripts/build.sh
+        run: docker exec -t app chmod +x /var/www/frontend/scripts/build.sh
 
       - name: Build frontend
         run: docker exec -t app npm run build-laravel --prefix /var/www/frontend
