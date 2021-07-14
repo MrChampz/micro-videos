@@ -65,7 +65,49 @@ class SyncModelObserver
         }
     }
 
-    protected function getModelName(Model $model) {
+    public function belongsToManyAttached($relation, $model, $ids) {
+        $modelName = $this->getModelName($model);
+        $relationName = Str::snake($relation);
+        $routingKey = "model.{$modelName}_{$relationName}.attached";
+        $data = [
+            'id' => $model->id,
+            'relation_ids' => $ids
+        ];
+
+        try {
+            $this->publish($routingKey, $data);
+        } catch (\Exception $exception) {
+            $this->reportException([
+                'modelId' => $model->id,
+                'modelName' => $modelName,
+                'action' => 'attached',
+                'originalException' => $exception
+            ]);
+        }
+    }
+
+    public function belongsToManyDetached($relation, $model, $ids) {
+        $modelName = $this->getModelName($model);
+        $relationName = Str::snake($relation);
+        $routingKey = "model.{$modelName}_{$relationName}.detached";
+        $data = [
+            'id' => $model->id,
+            'relation_ids' => $ids
+        ];
+
+        try {
+            $this->publish($routingKey, $data);
+        } catch (\Exception $exception) {
+            $this->reportException([
+                'modelId' => $model->id,
+                'modelName' => $modelName,
+                'action' => 'attached',
+                'originalException' => $exception
+            ]);
+        }
+    }
+
+    protected function getModelName(Model $model): string {
         $reflection = new \ReflectionClass($model);
         $shortName = $reflection->getShortName();
         return Str::snake($shortName);

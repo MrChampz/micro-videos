@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Models\Traits\Uuid;
 use App\Filters\GenreFilter;
+use Chelout\RelationshipEvents\Concerns\HasBelongsToManyEvents;
 use EloquentFilter\Filterable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -11,7 +12,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Genre extends Model
 {
-    use HasFactory, SoftDeletes, Uuid, Filterable;
+    use HasFactory, SoftDeletes, Uuid, Filterable, HasBelongsToManyEvents;
 
     public $incrementing = false;
     protected $keyType = 'string';
@@ -21,6 +22,8 @@ class Genre extends Model
     protected $casts = ['is_active' => 'boolean'];
 
     protected $dates = ['deleted_at'];
+
+    protected $observables = ['belongsToManyAttached', 'belongsToManyDetached'];
 
     public function categories()
     {
