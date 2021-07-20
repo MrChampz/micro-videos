@@ -13,5 +13,8 @@ export const useStyles = makeStyles((theme: Theme) => ({
     [theme.breakpoints.up('sm')]: {
       width: 170,
     },
+  },
+  username: {
+    textTransform: "none"
   }
 }));

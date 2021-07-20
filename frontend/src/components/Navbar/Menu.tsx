@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
-import { IconButton, Menu as MuiMenu, MenuItem } from '@material-ui/core';
+import {Divider, IconButton, Menu as MuiMenu, MenuItem, Link as MuiLink} from '@material-ui/core';
 import { Link } from 'react-router-dom';
+import {useKeycloak} from "@react-keycloak/web";
 import MenuIcon from '@material-ui/icons/Menu';
 import routes, { RouteProps } from '../../routes';
 
@@ -15,12 +16,18 @@ const listRoutes = {
 const menuRoutes = routes.filter(route => Object.keys(listRoutes).includes(route.name));
 
 const Menu: React.FC = () => {
+  const { keycloak, initialized } = useKeycloak();
+
   const [anchorEl, setAnchorEl] = useState(null);
   const open = Boolean(anchorEl);
 
   const handleOpen = (event: any) => setAnchorEl(event.currentTarget);
 
   const handleClose = () => setAnchorEl(null);
+
+  if (!initialized || !keycloak.authenticated) {
+    return null;
+  }
 
   return (
     <React.Fragment>
@@ -56,6 +63,17 @@ const Menu: React.FC = () => {
             </MenuItem>
           );
         })}
+        <Divider />
+        <MenuItem
+          component={MuiLink}
+          href="http://"
+          rel="noopener"
+          target="_blank"
+          color="textPrimary"
+          onClick={handleClose}
+        >
+          Usuários
+        </MenuItem>
       </MuiMenu>
     </React.Fragment>
   );
